@@ -35,6 +35,7 @@
 #include <limits.h>
 #include <ctype.h>
 #include <errno.h>
+#include <stdbool.h>
 #include <stdlib.h>
 
 /*
@@ -49,7 +50,8 @@ unsigned long strtoul(const char *nptr, char **endptr, register int base)
 	register unsigned long acc;
 	register int c;
 	register unsigned long cutoff;
-	register int neg = 0, any, cutlim;
+	register int any, cutlim;
+	register bool neg = false;
 
 	/*
 	 * See strtol for comments as to the logic used.
@@ -58,7 +60,7 @@ unsigned long strtoul(const char *nptr, char **endptr, register int base)
 		c = *s++;
 	} while (isspace((unsigned char)c));
 	if (c == '-') {
-		neg = 1;
+		neg = true;
 		c = *s++;
 	} else if (c == '+') {
 		c = *s++;
@@ -99,11 +101,11 @@ unsigned long strtoul(const char *nptr, char **endptr, register int base)
 	if (any < 0) {
 		acc = ULONG_MAX;
 		errno = ERANGE;
-	} else if (neg != 0) {
+	} else if (neg) {
 		acc = -acc;
 	}
 	if (endptr != NULL) {
-		*endptr = (char *)(any ? s - 1 : nptr);
+		*endptr = (char *)(any != 0 ? s - 1 : nptr);
 	}
 	return acc;
 }

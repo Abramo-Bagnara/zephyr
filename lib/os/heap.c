@@ -199,7 +199,7 @@ static chunkid_t alloc_chunk(struct z_heap *h, chunksz_t sz)
 			}
 			b->next = next_free_chunk(h, c);
 			CHECK(b->next != 0);
-		} while (--i && b->next != first);
+		} while ((--i != 0) && (b->next != first));
 	}
 
 	/* Otherwise pick the smallest non-empty bucket guaranteed to
@@ -335,7 +335,7 @@ void *sys_heap_aligned_realloc(struct sys_heap *heap, void *ptr,
 	size_t align_gap = (uint8_t *)ptr - (uint8_t *)chunk_mem(h, c);
 	chunksz_t chunks_need = bytes_to_chunksz(h, bytes + align_gap);
 
-	if (align && ((uintptr_t)ptr & (align - 1))) {
+	if ((align != 0U) && (((uintptr_t)ptr & (align - 1)) != 0U)) {
 		/* ptr is not sufficiently aligned */
 	} else if (chunk_size(h, c) == chunks_need) {
 		/* We're good already */

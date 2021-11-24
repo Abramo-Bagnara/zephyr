@@ -401,7 +401,7 @@ static inline const char *extract_width(struct conversion *conv,
 	if (sp != wp) {
 		conv->width_present = true;
 		conv->width_value = width;
-		conv->unsupported |= ((conv->width_value < 0)
+		conv->unsupported = (conv->unsupported || (conv->width_value < 0)
 				      || (width != (size_t)conv->width_value));
 	}
 
@@ -435,7 +435,7 @@ static inline const char *extract_prec(struct conversion *conv,
 	size_t prec = extract_decimal(&sp);
 
 	conv->prec_value = prec;
-	conv->unsupported |= ((conv->prec_value < 0)
+	conv->unsupported = (conv->unsupported || (conv->prec_value < 0)
 			      || (prec != (size_t)conv->prec_value));
 
 	return sp;
@@ -626,7 +626,7 @@ int_conv:
 		break;
 	}
 
-	conv->unsupported |= unsupported;
+	conv->unsupported = (conv->unsupported || unsupported);
 
 	return sp;
 }
@@ -1113,7 +1113,7 @@ static char *encode_float(double value,
 		do {
 			fract <<= 1;
 			expo--;
-		} while (!(fract & BIT_63));
+		} while ((fract & BIT_63) == 0U);
 	}
 
 	/*
@@ -1323,7 +1323,7 @@ static int outs(cbprintf_cb out,
 {
 	size_t count = 0;
 
-	while ((sp < ep) || ((ep == NULL) && *sp)) {
+	while ((sp < ep) || ((ep == NULL) && (*sp != '\0'))) {
 		int rc = out((int)*sp++, ctx);
 
 		if (rc < 0) {
@@ -1803,7 +1803,7 @@ int cbvprintf(cbprintf_cb out, void *ctx, const char *fp, va_list ap)
 
 			OUTS(cp, bpe);
 		} else {
-			if ((conv->altform_0c | conv->altform_0) != 0) {
+			if (conv->altform_0c || conv->altform_0) {
 				OUTC('0');
 			}
 

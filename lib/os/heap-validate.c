@@ -221,7 +221,7 @@ static bool rand_alloc_choice(struct z_heap_stress_rec *sr)
 		 */
 		__ASSERT(sr->total_bytes < 0xffffffffU / 100, "too big for u32!");
 		uint32_t full_pct = (100 * sr->bytes_alloced) / sr->total_bytes;
-		uint32_t target = sr->target_percent ? sr->target_percent : 1;
+		uint32_t target = sr->target_percent != 0U ? sr->target_percent : 1U;
 		uint32_t free_chance = 0xffffffffU;
 
 		if (full_pct < sr->target_percent) {

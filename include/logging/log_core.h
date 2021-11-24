@@ -107,20 +107,20 @@ extern "C" {
  *  @param _addr Address of the element.
  */
 #define LOG_CONST_ID_GET(_addr) \
-	COND_CODE_1(CONFIG_LOG, ((__log_level ? log_const_source_id(_addr) : 0)), (0))
+	COND_CODE_1(CONFIG_LOG, ((__log_level != 0U ? log_const_source_id(_addr) : 0)), (0))
 
 /**
  * @def LOG_CURRENT_MODULE_ID
  * @brief Macro for getting ID of current module.
  */
-#define LOG_CURRENT_MODULE_ID() (__log_level != 0 ? \
+#define LOG_CURRENT_MODULE_ID() (__log_level != 0U ? \
 	log_const_source_id(__log_current_const_data) : 0U)
 
 /**
  * @def LOG_CURRENT_DYNAMIC_DATA_ADDR
  * @brief Macro for getting address of dynamic structure of current module.
  */
-#define LOG_CURRENT_DYNAMIC_DATA_ADDR()	(__log_level ? \
+#define LOG_CURRENT_DYNAMIC_DATA_ADDR()	(__log_level != 0U ? \
 	__log_current_dynamic_data : (struct log_source_dynamic_data *)0U)
 
 /** @brief Macro for getting ID of the element of the section.
@@ -128,7 +128,7 @@ extern "C" {
  *  @param _addr Address of the element.
  */
 #define LOG_DYNAMIC_ID_GET(_addr) \
-	COND_CODE_1(CONFIG_LOG, ((__log_level ? log_dynamic_source_id(_addr) : 0)), (0))
+	COND_CODE_1(CONFIG_LOG, ((__log_level != 0U ? log_dynamic_source_id(_addr) : 0)), (0))
 
 /* Set of defines that are set to 1 if function name prefix is enabled for given level. */
 #define Z_LOG_FUNC_PREFIX_0U 0

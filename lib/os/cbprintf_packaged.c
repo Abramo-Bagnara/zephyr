@@ -229,7 +229,7 @@ int cbvprintf_package(void *packaged, size_t len, uint32_t flags,
 	 * In this case, incoming len argument indicates the anticipated
 	 * buffer "misalignment" offset.
 	 */
-	if (!buf0) {
+	if (buf0 == NULL) {
 #if defined(__xtensa__)
 		if (len % CBPRINTF_PACKAGE_ALIGNMENT) {
 			return -EFAULT;
@@ -243,7 +243,7 @@ int cbvprintf_package(void *packaged, size_t len, uint32_t flags,
 	 * Otherwise we must ensure we can store at least
 	 * thepointer to the format string itself.
 	 */
-	if (buf0 && buf - buf0 + sizeof(char *) > len) {
+	if ((buf0 != NULL) && (buf - buf0 + sizeof(char *) > len)) {
 		return -ENOSPC;
 	}
 
@@ -391,7 +391,7 @@ int cbvprintf_package(void *packaged, size_t len, uint32_t flags,
 		buf = (void *) ROUND_UP(buf, align);
 
 		/* make sure the data fits */
-		if (buf0 && buf - buf0 + size > len) {
+		if ((buf0 != NULL) && (buf - buf0 + size > len)) {
 			return -ENOSPC;
 		}
 
@@ -503,7 +503,8 @@ process_string:
 	 * If all we wanted was to count required buffer size
 	 * then we have it now.
 	 */
-	if (!buf0) {
+	if (buf0 == NULL) {
+		/*? BUG HERE: a null pointer is subtracted */
 		return len + buf - buf0;
 	}
 
@@ -518,7 +519,7 @@ process_string:
 	/* Store strings pointer locations of read only strings. */
 	if (s_ro_cnt != 0U) {
 		for (i = 0; i < s_idx; i++) {
-			if (!(str_ptr_pos[i] & CBPRINTF_STR_POS_RO_FLAG)) {
+			if ((str_ptr_pos[i] & CBPRINTF_STR_POS_RO_FLAG) == 0U) {
 				continue;
 			}
 
@@ -585,7 +586,7 @@ int cbpprintf(cbprintf_cb out, void *ctx, void *packaged)
 	char *buf = packaged, *fmt, *s, **ps;
 	unsigned int i, args_size, s_nbr, ros_nbr, s_idx;
 
-	if (!buf) {
+	if (buf == NULL) {
 		return -EINVAL;
 	}
 
@@ -631,11 +632,11 @@ int cbprintf_fsc_package(void *in_packaged,
 	size_t out_len;
 	size_t slen;
 
-	if (!buf) {
+	if (buf == NULL) {
 		return -EINVAL;
 	}
 
-	if (packaged && (len < in_len)) {
+	if ((packaged != NULL) && (len < in_len)) {
 		return -ENOSPC;
 	}
 

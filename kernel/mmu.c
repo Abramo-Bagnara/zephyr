@@ -660,7 +660,7 @@ void z_phys_map(uint8_t **virt_ptr, uintptr_t phys, size_t size, uint32_t flags)
 	key = k_spin_lock(&z_mm_lock);
 	/* Obtain an appropriately sized chunk of virtual memory */
 	dest_addr = virt_region_alloc(aligned_size);
-	if (!dest_addr) {
+	if (dest_addr == NULL) {
 		goto fail;
 	}
 

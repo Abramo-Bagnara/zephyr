@@ -133,7 +133,7 @@ void *z_acpi_find_table(uint32_t signature)
 
 	find_rsdp();
 
-	if (!rsdp) {
+	if (rsdp == NULL) {
 		return NULL;
 	}
 
@@ -229,7 +229,7 @@ struct acpi_cpu *z_acpi_get_cpu(int n)
 	uintptr_t base = POINTER_TO_UINT(madt);
 	uintptr_t offset;
 
-	if (!madt) {
+	if (madt == NULL) {
 		return NULL;
 	}
 

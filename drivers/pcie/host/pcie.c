@@ -78,7 +78,7 @@ uint32_t pcie_get_ext_cap(pcie_bdf_t bdf, uint32_t cap_id)
 
 	while (reg != 0U) {
 		data = pcie_conf_read(bdf, reg);
-		if (!data || data == 0xffffffffU) {
+		if ((data == 0U) || (data == 0xffffffffU)) {
 			return 0;
 		}
 

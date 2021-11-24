@@ -214,7 +214,7 @@ struct rbnode *z_rb_foreach_next(struct rbtree *tree, struct _rb_foreach *f);
 #define RB_FOR_EACH_CONTAINER(tree, node, field)		           \
 	for (struct _rb_foreach __f = _RB_FOREACH_INIT(tree, node);	   \
 			({struct rbnode *n = z_rb_foreach_next(tree, &__f); \
-			 node = n ? CONTAINER_OF(n, __typeof__(*(node)),   \
+			 node = (n != NULL) ? CONTAINER_OF(n, __typeof__(*(node)),   \
 					 field) : NULL; }) != NULL;        \
 			 /**/)
 

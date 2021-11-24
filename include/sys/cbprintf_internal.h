@@ -78,27 +78,27 @@ extern "C" {
 #define Z_CBPRINTF_VA_STACK_LL_DBL_MEMCPY	false
 #endif
 
-/** @brief Return true if argument is a pointer to char or wchar_t
+/** @brief Return 1 if argument is a pointer to char or wchar_t
  *
  * @param x argument.
  *
- * @return true if char * or wchar_t *, false otherwise.
+ * @return 1 if char * or wchar_t *, 0 otherwise.
  */
 #ifdef __cplusplus
 #define Z_CBPRINTF_IS_PCHAR(x) z_cbprintf_cxx_is_pchar(x)
 #else
 #define Z_CBPRINTF_IS_PCHAR(x) \
 	_Generic((x) + 0, \
-		char * : true, \
-		const char * : true, \
-		volatile char * : true, \
-		const volatile char * : true, \
-		wchar_t * : true, \
-		const wchar_t * : true, \
-		volatile wchar_t * : true, \
-		const volatile wchar_t * : true, \
+		char * : 1, \
+		const char * : 1, \
+		volatile char * : 1, \
+		const volatile char * : 1, \
+		wchar_t * : 1, \
+		const wchar_t * : 1, \
+		volatile wchar_t * : 1, \
+		const volatile wchar_t * : 1, \
 		default : \
-			false)
+			0)
 #endif
 
 /** @brief Calculate number of char * or wchar_t * arguments in the arguments.
@@ -120,15 +120,15 @@ extern "C" {
  *
  * @param ... String with arguments (fmt, ...).
  *
- * @retval 1 if string must be packaged at runtime.
- * @retval 0 if string can be statically packaged.
+ * @retval true if string must be packaged at runtime.
+ * @retval false if string can be statically packaged.
  */
 #if Z_C_GENERIC
 #define Z_CBPRINTF_MUST_RUNTIME_PACKAGE(skip, ...) ({\
 	_Pragma("GCC diagnostic push") \
 	_Pragma("GCC diagnostic ignored \"-Wpointer-arith\"") \
-	int _rv = COND_CODE_0(NUM_VA_ARGS_LESS_1(__VA_ARGS__), \
-			(0), \
+	bool _rv = COND_CODE_0(NUM_VA_ARGS_LESS_1(__VA_ARGS__), \
+			(false), \
 			(((Z_CBPRINTF_HAS_PCHAR_ARGS(__VA_ARGS__) - skip) > 0))); \
 	_Pragma("GCC diagnostic pop")\
 	_rv; \
@@ -231,17 +231,17 @@ extern "C" {
  *
  * @param x Argument.
  *
- * @return 1 if @p x is a long double, 0 otherwise.
+ * @return true if @p x is a long double, false otherwise.
  */
 #ifdef __cplusplus
 #if defined(__x86_64__) || defined(__riscv) || defined(__aarch64__)
-#define Z_CBPRINTF_IS_LONGDOUBLE(x) 0
+#define Z_CBPRINTF_IS_LONGDOUBLE(x) false
 #else
 #define Z_CBPRINTF_IS_LONGDOUBLE(x) z_cbprintf_cxx_is_longdouble(x)
 #endif
 #else
 #define Z_CBPRINTF_IS_LONGDOUBLE(x) \
-	_Generic((x) + 0, long double : 1, default : 0)
+	_Generic((x) + 0, long double : true, default : false)
 #endif
 
 /** @brief Safely package arguments to a buffer.
@@ -271,10 +271,10 @@ do { \
 		_align_offset += sizeof(int); \
 	} \
 	uint32_t _arg_size = Z_CBPRINTF_ARG_SIZE(_arg); \
-	if (Z_CBPRINTF_IS_PCHAR(_arg)) { \
+	if (Z_CBPRINTF_IS_PCHAR(_arg) != 0) { \
 		_s_buf[_s_idx++] = _idx / sizeof(int); \
 	} \
-	if (_buf && _idx < (int)_max) { \
+	if (_buf != NULL && _idx < (int)_max) { \
 		Z_CBPRINTF_STORE_ARG(&_buf[_idx], _arg); \
 	} \
 	_idx += _arg_size; \
@@ -344,7 +344,7 @@ do { \
 	Z_CBPRINTF_SUPPRESS_SIZEOF_ARRAY_DECAY \
 	BUILD_ASSERT(!IS_ENABLED(CONFIG_XTENSA) || \
 		     (IS_ENABLED(CONFIG_XTENSA) && \
-		      !(_align_offset % CBPRINTF_PACKAGE_ALIGNMENT)), \
+		      (_align_offset % CBPRINTF_PACKAGE_ALIGNMENT) == 0U), \
 			"Xtensa requires aligned package."); \
 	BUILD_ASSERT((_align_offset % sizeof(int)) == 0, \
 			"Alignment offset must be multiply of a word."); \

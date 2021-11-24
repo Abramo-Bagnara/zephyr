@@ -72,7 +72,7 @@ static int32_t next_timeout(void)
 		: CLAMP(to->dticks - ticks_elapsed, 0, MAX_WAIT);
 
 #ifdef CONFIG_TIMESLICING
-	if (_current_cpu->slice_ticks && _current_cpu->slice_ticks < ret) {
+	if ((_current_cpu->slice_ticks != 0) && (_current_cpu->slice_ticks < ret)) {
 		ret = _current_cpu->slice_ticks;
 	}
 #endif

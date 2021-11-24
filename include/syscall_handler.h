@@ -366,7 +366,7 @@ extern int z_user_string_copy(char *dst, const char *src, size_t maxlen);
  * @return 0 on success, nonzero on failure
  */
 #define Z_SYSCALL_MEMORY_READ(ptr, size) \
-	Z_SYSCALL_MEMORY(ptr, size, 0)
+	Z_SYSCALL_MEMORY(ptr, size, false)
 
 /**
  * @brief Runtime check that a user thread has write permission to a memory area
@@ -382,7 +382,7 @@ extern int z_user_string_copy(char *dst, const char *src, size_t maxlen);
  * @param 0 on success, nonzero on failure
  */
 #define Z_SYSCALL_MEMORY_WRITE(ptr, size) \
-	Z_SYSCALL_MEMORY(ptr, size, 1)
+	Z_SYSCALL_MEMORY(ptr, size, true)
 
 #define Z_SYSCALL_MEMORY_ARRAY(ptr, nmemb, size, write) \
 	({ \
@@ -408,7 +408,7 @@ extern int z_user_string_copy(char *dst, const char *src, size_t maxlen);
  * @return 0 on success, nonzero on failure
  */
 #define Z_SYSCALL_MEMORY_ARRAY_READ(ptr, nmemb, size) \
-	Z_SYSCALL_MEMORY_ARRAY(ptr, nmemb, size, 0)
+	Z_SYSCALL_MEMORY_ARRAY(ptr, nmemb, size, false)
 
 /**
  * @brief Validate user thread has read/write permission for sized array
@@ -423,7 +423,7 @@ extern int z_user_string_copy(char *dst, const char *src, size_t maxlen);
  * @return 0 on success, nonzero on failure
  */
 #define Z_SYSCALL_MEMORY_ARRAY_WRITE(ptr, nmemb, size) \
-	Z_SYSCALL_MEMORY_ARRAY(ptr, nmemb, size, 1)
+	Z_SYSCALL_MEMORY_ARRAY(ptr, nmemb, size, true)
 
 static inline int z_obj_validation_check(struct z_object *ko,
 					 const void *obj,

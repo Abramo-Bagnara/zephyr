@@ -46,7 +46,7 @@ static void prdec(struct _pfr *r, long v)
 	int i = sizeof(digs) - 1;
 
 	digs[i--] = 0;
-	while (v || i == 9) {
+	while ((v != 0) || (i == 9)) {
 		digs[i--] = '0' + (v % 10);
 		v /= 10;
 	}
@@ -58,7 +58,7 @@ static void prdec(struct _pfr *r, long v)
 
 static void endrec(struct _pfr *r)
 {
-	if (r->buf && r->idx < r->len) {
+	if ((r->buf != NULL) && (r->idx < r->len)) {
 		r->buf[r->idx] = 0;
 	}
 }
@@ -110,13 +110,15 @@ static int vpf(struct _pfr *r, const char *f, va_list ap)
 			pc(r, 'x'); /* fall through... */
 			islong = sizeof(long) > 4;
 		case 'x': {
-			int sig = 0;
+			bool sig = false;
 			unsigned long v = islong ? va_arg(ap, unsigned long)
 				: va_arg(ap, unsigned int);
 			for (int i = 2*sizeof(long) - 1; i >= 0; i--) {
 				int d = (v >> (i*4)) & 0xf;
 
-				sig += !!d;
+				if (d != 0) {
+					sig = true;
+				}
 				if (sig || i == 0)
 					pc(r, "0123456789abcdef"[d]);
 			}

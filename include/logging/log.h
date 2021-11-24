@@ -415,13 +415,13 @@ static inline char *log_strdup(const char *str)
 									      \
 	static const struct log_source_const_data *			      \
 		__log_current_const_data __unused =			      \
-			_LOG_LEVEL_RESOLVE(__VA_ARGS__) ?		      \
+			_LOG_LEVEL_RESOLVE(__VA_ARGS__) != 0 ?		      \
 			&LOG_ITEM_CONST_DATA(GET_ARG_N(1, __VA_ARGS__)) :     \
 			NULL;						      \
 									      \
 	static struct log_source_dynamic_data *				      \
 		__log_current_dynamic_data __unused =			      \
-			(_LOG_LEVEL_RESOLVE(__VA_ARGS__) &&		      \
+			((_LOG_LEVEL_RESOLVE(__VA_ARGS__) != 0) &&		      \
 			IS_ENABLED(CONFIG_LOG_RUNTIME_FILTERING)) ?	      \
 			&LOG_ITEM_DYNAMIC_DATA(GET_ARG_N(1, __VA_ARGS__)) :   \
 			NULL;						      \

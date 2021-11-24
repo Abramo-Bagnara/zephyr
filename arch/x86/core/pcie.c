@@ -49,7 +49,7 @@ static void pcie_mm_init(void)
 
 			phys_addr = m->pci_segs[i].base_addr;
 			/* 32 devices & 8 functions per bus, 4k per device */
-			size = bus_segs[i].n_buses * (32 * 8 * 4096);
+			size = bus_segs[i].n_buses * (32 * 8 * (size_t)4096);
 
 			device_map((mm_reg_t *)&bus_segs[i].mmio, phys_addr,
 				   size, K_MEM_CACHE_NONE);

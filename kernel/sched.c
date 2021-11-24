@@ -48,22 +48,22 @@ LOG_MODULE_DECLARE(os, CONFIG_KERNEL_LOG_LEVEL);
 
 struct k_spinlock sched_spinlock;
 
-static void update_cache(int preempt_ok);
+static void update_cache(bool preempt_ok);
 static void end_thread(struct k_thread *thread);
 
-static inline int is_preempt(struct k_thread *thread)
+static inline bool is_preempt(struct k_thread *thread)
 {
 	/* explanation in kernel_struct.h */
 	return thread->base.preempt <= _PREEMPT_THRESHOLD;
 }
 
-static inline int is_metairq(struct k_thread *thread)
+static inline bool is_metairq(struct k_thread *thread)
 {
 #if CONFIG_NUM_METAIRQ_PRIORITIES > 0
 	return (thread->base.prio - K_HIGHEST_THREAD_PRIO)
 		< CONFIG_NUM_METAIRQ_PRIORITIES;
 #else
-	return 0;
+	return false;
 #endif
 }
 
@@ -117,12 +117,12 @@ int32_t z_sched_prio_cmp(struct k_thread *thread_1,
 }
 
 static ALWAYS_INLINE bool should_preempt(struct k_thread *thread,
-					 int preempt_ok)
+					 bool preempt_ok)
 {
 	/* Preemption is OK if it's being explicitly allowed by
 	 * software state (e.g. the thread called k_yield())
 	 */
-	if (preempt_ok != 0) {
+	if (preempt_ok) {
 		return true;
 	}
 
@@ -373,7 +373,7 @@ void k_sched_time_slice_set(int32_t slice, int prio)
 	}
 }
 
-static inline int sliceable(struct k_thread *thread)
+static inline bool sliceable(struct k_thread *thread)
 {
 	return is_preempt(thread)
 		&& !z_is_thread_prevented_from_running(thread)
@@ -402,7 +402,7 @@ void z_time_slice(int ticks)
 	pending_current = NULL;
 #endif
 
-	if (slice_time && sliceable(_current)) {
+	if (slice_time != 0 && sliceable(_current)) {
 		if (ticks >= _current_cpu->slice_ticks) {
 			move_thread_to_end_of_prio_q(_current);
 			z_reset_time_slice();
@@ -434,7 +434,7 @@ static void update_metairq_preempt(struct k_thread *thread)
 #endif
 }
 
-static void update_cache(int preempt_ok)
+static void update_cache(bool preempt_ok)
 {
 #ifndef CONFIG_SMP
 	struct k_thread *thread = next_up();
@@ -494,7 +494,7 @@ static void ready_thread(struct k_thread *thread)
 		SYS_PORT_TRACING_OBJ_FUNC(k_thread, sched_ready, thread);
 
 		queue_thread(&_kernel.ready_q.runq, thread);
-		update_cache(0);
+		update_cache(false);
 #if defined(CONFIG_SMP) &&  defined(CONFIG_SCHED_IPI_SUPPORTED)
 		arch_sched_ipi();
 #endif
@@ -669,8 +669,8 @@ void z_thread_timeout(struct _timeout *timeout)
 					       struct k_thread, base.timeout);
 
 	LOCKED(&sched_spinlock) {
-		bool killed = ((thread->base.thread_state & _THREAD_DEAD) ||
-			       (thread->base.thread_state & _THREAD_ABORTING));
+		bool killed = (((thread->base.thread_state & _THREAD_DEAD) != 0U) ||
+			       ((thread->base.thread_state & _THREAD_ABORTING) != 0U));
 
 		if (!killed) {
 			if (thread->base.pended_on != NULL) {
@@ -769,7 +769,7 @@ bool z_set_prio(struct k_thread *thread, int prio)
 			} else {
 				thread->base.prio = prio;
 			}
-			update_cache(1);
+			update_cache(true);
 		} else {
 			thread->base.prio = prio;
 		}
@@ -796,7 +796,7 @@ void z_thread_priority_set(struct k_thread *thread, int prio)
 static inline bool resched(uint32_t key)
 {
 #ifdef CONFIG_SMP
-	_current_cpu->swap_ok = 0;
+	_current_cpu->swap_ok = false;
 #endif
 
 	return arch_irq_unlocked(key) && !arch_is_in_isr();
@@ -854,7 +854,7 @@ void k_sched_unlock(void)
 		__ASSERT(!arch_is_in_isr(), "");
 
 		++_current->base.sched_locked;
-		update_cache(0);
+		update_cache(false);
 	}
 
 	LOG_DBG("scheduler unlocked (%p:%d)",
@@ -905,7 +905,7 @@ void *z_get_next_switch_handle(void *interrupted)
 #ifdef CONFIG_TIMESLICING
 			z_reset_time_slice();
 #endif
-			_current_cpu->swap_ok = 0;
+			_current_cpu->swap_ok = false;
 			set_current(new_thread);
 
 #ifdef CONFIG_SPIN_VALIDATE
@@ -996,7 +996,7 @@ void z_priq_rb_add(struct _priq_rb *pq, struct k_thread *thread)
 	 * AND that contains very large numbers of threads, it can be
 	 * a latency glitch to loop over all the threads like this.
 	 */
-	if (!pq->next_order_key) {
+	if (pq->next_order_key == 0) {
 		RB_FOR_EACH_CONTAINER(&pq->tree, t, base.qnode_rb) {
 			t->base.order_key = pq->next_order_key++;
 		}
@@ -1011,7 +1011,7 @@ void z_priq_rb_remove(struct _priq_rb *pq, struct k_thread *thread)
 
 	rb_remove(&pq->tree, &thread->base.qnode_rb);
 
-	if (!pq->tree.root) {
+	if (pq->tree.root == NULL) {
 		pq->next_order_key = 0;
 	}
 }
@@ -1053,7 +1053,7 @@ ALWAYS_INLINE void z_priq_mq_remove(struct _priq_mq *pq, struct k_thread *thread
 
 struct k_thread *z_priq_mq_best(struct _priq_mq *pq)
 {
-	if (!pq->bitmask) {
+	if (pq->bitmask == 0U) {
 		return NULL;
 	}
 
@@ -1194,7 +1194,7 @@ void z_impl_k_yield(void)
 			       _current);
 	}
 	queue_thread(&_kernel.ready_q.runq, _current);
-	update_cache(1);
+	update_cache(true);
 	z_swap(&sched_spinlock, key);
 }
 
@@ -1480,7 +1480,7 @@ static void end_thread(struct k_thread *thread)
 		}
 		(void)z_abort_thread_timeout(thread);
 		unpend_all(&thread->join_queue);
-		update_cache(1);
+		update_cache(true);
 
 		SYS_PORT_TRACING_FUNC(k_thread, sched_abort, thread);
 
@@ -1613,7 +1613,7 @@ static bool thread_obj_validate(struct k_thread *thread)
 #ifdef CONFIG_LOG
 		z_dump_object_error(ret, thread, ko, K_OBJ_THREAD);
 #endif
-		Z_OOPS(Z_SYSCALL_VERIFY_MSG(ret, "access denied"));
+		Z_OOPS(Z_SYSCALL_VERIFY_MSG(ret != 0, "access denied"));
 	}
 	CODE_UNREACHABLE; /* LCOV_EXCL_LINE */
 }
@@ -1635,7 +1635,7 @@ static inline void z_vrfy_k_thread_abort(k_tid_t thread)
 		return;
 	}
 
-	Z_OOPS(Z_SYSCALL_VERIFY_MSG(!(thread->base.user_options & K_ESSENTIAL),
+	Z_OOPS(Z_SYSCALL_VERIFY_MSG((thread->base.user_options & K_ESSENTIAL) == 0U,
 				    "aborting essential thread %p", thread));
 
 	z_impl_k_thread_abort((struct k_thread *)thread);

@@ -34,6 +34,7 @@
 #include <limits.h>
 #include <ctype.h>
 #include <errno.h>
+#include <stdbool.h>
 #include <stdlib.h>
 
 /*
@@ -48,7 +49,8 @@ long strtol(const char *nptr, char **endptr, register int base)
 	register unsigned long acc;
 	register int c;
 	register unsigned long cutoff;
-	register int neg = 0, any, cutlim;
+	register int any, cutlim;
+	register bool neg = false;
 
 	/*
 	 * Skip white space and pick up leading +/- sign if any.
@@ -59,7 +61,7 @@ long strtol(const char *nptr, char **endptr, register int base)
 		c = *s++;
 	} while (isspace((unsigned char)c));
 	if (c == '-') {
-		neg = 1;
+		neg = true;
 		c = *s++;
 	} else if (c == '+') {
 		c = *s++;
@@ -119,12 +121,12 @@ long strtol(const char *nptr, char **endptr, register int base)
 	if (any < 0) {
 		acc = neg ? LONG_MIN : LONG_MAX;
 		errno = ERANGE;
-	} else if (neg != 0) {
+	} else if (neg) {
 		acc = -acc;
 	}
 
 	if (endptr != NULL) {
-		*endptr = (char *)(any ? s - 1 : nptr);
+		*endptr = (char *)(any != 0 ? s - 1 : nptr);
 	}
 	return acc;
 }

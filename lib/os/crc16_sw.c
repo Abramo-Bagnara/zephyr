@@ -22,8 +22,8 @@ uint16_t crc16(const uint8_t *src, size_t len, uint16_t polynomial,
 			crc = (crc << 1U);
 
 			/* choose input bytes or implicit trailing zeros */
-			if (i < len) {
-				crc |= !!(src[i] & (0x80U >> b));
+			if ((i < len) && ((src[i] & (0x80U >> b)) != 0U)) {
+				crc |= 1U;
 			}
 
 			if (divide != 0U) {

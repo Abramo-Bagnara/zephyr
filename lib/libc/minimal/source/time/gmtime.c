@@ -47,7 +47,7 @@ static void time_civil_from_days(bigint_type z,
 	unsigned int d = doy - (153U * mp + 2U) / 5U + 1U;
 	unsigned int m = mp + ((mp < 10) ? 3 : -9);
 
-	tp->tm_year = y + (m <= 2) - 1900;
+	tp->tm_year = y + (m <= 2 ? 1 : 0) - 1900;
 	tp->tm_mon = m - 1;
 	tp->tm_mday = d;
 
@@ -66,7 +66,10 @@ static void time_civil_from_days(bigint_type z,
 	if (doy >= 306U) {
 		tp->tm_yday = doy - 306U;
 	} else {
-		tp->tm_yday = doy + 59U + (((yoe % 4U == 0U) && (yoe % 100U != 0U)) || (yoe == 0U));
+		tp->tm_yday = doy + 59U;
+		if (((yoe % 4U == 0U) && (yoe % 100U != 0U)) || (yoe == 0U)) {
+			++tp->tm_yday;
+		}
 	}
 }
 

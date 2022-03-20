@@ -35,7 +35,7 @@
 })
 
 #define MAKE_REG_HELPER(reg)						\
-	static ALWAYS_INLINE uint64_t read_##reg(void)			\
+	static __attribute_pure__ ALWAYS_INLINE uint64_t read_##reg(void)			\
 	{								\
 		return read_sysreg(reg);				\
 	}								\

@@ -267,7 +267,7 @@ static inline sys_sfnode_t *sys_sflist_peek_tail(sys_sflist_t *list)
  * @param node A pointer to the node to fetch flags from
  * @return The value of flags, which will be between 0 and 3
  */
-static inline uint8_t sys_sfnode_flags_get(sys_sfnode_t *node)
+static __attribute_pure__ inline uint8_t sys_sfnode_flags_get(sys_sfnode_t *node)
 {
 	return (uint8_t)(node->next_and_flags & SYS_SFLIST_FLAGS_MASK);
 }

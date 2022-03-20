@@ -60,7 +60,7 @@ extern uint8_t _thread_idx_map[CONFIG_MAX_THREAD_BYTES];
 
 static void clear_perms_cb(struct z_object *ko, void *ctx_ptr);
 
-const char *otype_to_str(enum k_objects otype)
+__attribute_const__ const char *otype_to_str(enum k_objects otype)
 {
 	const char *ret;
 	/* -fdata-sections doesn't work right except in very very recent
@@ -167,7 +167,7 @@ static sys_dlist_t obj_list = SYS_DLIST_STATIC_INIT(&obj_list);
  * and obj_list.
  */
 
-static size_t obj_size_get(enum k_objects otype)
+static __attribute_const__ size_t obj_size_get(enum k_objects otype)
 {
 	size_t ret;
 
@@ -181,7 +181,7 @@ static size_t obj_size_get(enum k_objects otype)
 	return ret;
 }
 
-static size_t obj_align_get(enum k_objects otype)
+static __attribute_const__ size_t obj_align_get(enum k_objects otype)
 {
 	size_t ret;
 
@@ -211,7 +211,7 @@ static inline struct dyn_obj *node_to_dyn_obj(struct rbnode *node)
 	return CONTAINER_OF(node, struct dyn_obj, node);
 }
 
-static inline struct rbnode *dyn_obj_to_node(void *obj)
+static __attribute_const__ inline struct rbnode *dyn_obj_to_node(void *obj)
 {
 	struct dyn_obj *dobj = CONTAINER_OF(obj, struct dyn_obj, data);
 
@@ -519,13 +519,16 @@ static void wordlist_cb(struct z_object *ko, void *ctx_ptr)
 
 void z_thread_perms_inherit(struct k_thread *parent, struct k_thread *child)
 {
-	struct perm_ctx ctx = {
-		thread_index_get(parent),
-		thread_index_get(child),
-		parent
-	};
+	int parent_id = thread_index_get(parent);
+	int child_id = thread_index_get(child);
 
-	if ((ctx.parent_id != -1) && (ctx.child_id != -1)) {
+	if ((parent_id != -1) && (child_id != -1)) {
+		struct perm_ctx ctx = {
+			parent_id,
+			child_id,
+			parent
+		};
+
 		z_object_wordlist_foreach(wordlist_cb, &ctx);
 	}
 }

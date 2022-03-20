@@ -32,7 +32,7 @@ void z_add_timeout(struct _timeout *to, _timeout_func_t fn,
 
 int z_abort_timeout(struct _timeout *to);
 
-static inline bool z_is_inactive_timeout(const struct _timeout *to)
+static __attribute_pure__ inline bool z_is_inactive_timeout(const struct _timeout *to)
 {
 	return !sys_dnode_is_linked(&to->node);
 }

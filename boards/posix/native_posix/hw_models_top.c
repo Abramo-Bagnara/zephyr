@@ -184,7 +184,7 @@ void hwm_set_end_of_time(uint64_t new_end_of_time)
 /**
  * Return the current time as known by the device
  */
-uint64_t hwm_get_time(void)
+uint64_t __attribute_pure__ hwm_get_time(void)
 {
 	return simu_time;
 }

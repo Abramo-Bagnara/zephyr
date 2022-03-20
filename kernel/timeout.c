@@ -39,14 +39,14 @@ static inline int z_vrfy_sys_clock_hw_cycles_per_sec_runtime_get(void)
 #endif /* CONFIG_USERSPACE */
 #endif /* CONFIG_TIMER_READS_ITS_FREQUENCY_AT_RUNTIME */
 
-static struct _timeout *first(void)
+static __attribute_pure__ struct _timeout *first(void)
 {
 	sys_dnode_t *t = sys_dlist_peek_head(&timeout_list);
 
 	return (t == NULL) ? NULL : CONTAINER_OF(t, struct _timeout, node);
 }
 
-static struct _timeout *next(struct _timeout *t)
+static __attribute_pure__ struct _timeout *next(struct _timeout *t)
 {
 	sys_dnode_t *n = sys_dlist_peek_next(&timeout_list, &t->node);
 
@@ -75,8 +75,10 @@ static int32_t next_timeout(void)
 		: CLAMP(to->dticks - ticks_elapsed, 0, MAX_WAIT));
 
 #ifdef CONFIG_TIMESLICING
-	if ((_current_cpu->slice_ticks != 0) && (_current_cpu->slice_ticks < ret)) {
-		ret = _current_cpu->slice_ticks;
+	_cpu_t *current_cpu = _current_cpu;
+
+	if ((current_cpu->slice_ticks != 0) && (current_cpu->slice_ticks < ret)) {
+		ret = current_cpu->slice_ticks;
 	}
 #endif
 	return ret;

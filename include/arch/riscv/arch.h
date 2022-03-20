@@ -330,7 +330,7 @@ static ALWAYS_INLINE void arch_irq_unlock(unsigned int key)
 			  : "memory");
 }
 
-static ALWAYS_INLINE bool arch_irq_unlocked(unsigned int key)
+static __attribute_const__ ALWAYS_INLINE bool arch_irq_unlocked(unsigned int key)
 {
 	/* FIXME: looking at arch_irq_lock, this should be reducable
 	 * to just testing that key is nonzero (because it should only

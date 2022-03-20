@@ -128,10 +128,10 @@ static int validate_args(const struct onoff_manager *mgr,
 
 	int rv = sys_notify_validate(&cli->notify);
 
-	if ((rv == 0)
-	    && ((cli->notify.flags
-		 & ~BIT_MASK(ONOFF_CLIENT_EXTENSION_POS)) != 0)) {
-		rv = -EINVAL;
+	if (rv == 0) {
+		if ((cli->notify.flags & ~BIT_MASK(ONOFF_CLIENT_EXTENSION_POS)) != 0) {
+			rv = -EINVAL;
+		}
 	}
 
 	return rv;

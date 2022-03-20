@@ -119,7 +119,7 @@ struct z_page_frame {
 	 */
 } __packed;
 
-static inline bool z_page_frame_is_pinned(struct z_page_frame *pf)
+static __attribute_pure__ inline bool z_page_frame_is_pinned(struct z_page_frame *pf)
 {
 	return (pf->flags & Z_PAGE_FRAME_PINNED) != 0U;
 }
@@ -129,12 +129,12 @@ static inline bool z_page_frame_is_reserved(struct z_page_frame *pf)
 	return (pf->flags & Z_PAGE_FRAME_RESERVED) != 0U;
 }
 
-static inline bool z_page_frame_is_mapped(struct z_page_frame *pf)
+static __attribute_pure__ inline bool z_page_frame_is_mapped(struct z_page_frame *pf)
 {
 	return (pf->flags & Z_PAGE_FRAME_MAPPED) != 0U;
 }
 
-static inline bool z_page_frame_is_busy(struct z_page_frame *pf)
+static __attribute_pure__ inline bool z_page_frame_is_busy(struct z_page_frame *pf)
 {
 	return (pf->flags & Z_PAGE_FRAME_BUSY) != 0U;
 }

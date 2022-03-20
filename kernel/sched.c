@@ -56,13 +56,19 @@ static ALWAYS_INLINE void z_priq_mq_add(struct _priq_mq *pq,
 static ALWAYS_INLINE void z_priq_mq_remove(struct _priq_mq *pq,
 					   struct k_thread *thread);
 
-static inline bool is_preempt(struct k_thread *thread)
+static __attribute_pure__ inline bool is_preempt(struct k_thread *thread)
 {
 	/* explanation in kernel_struct.h */
 	return thread->base.preempt <= _PREEMPT_THRESHOLD;
 }
 
-static inline bool is_metairq(struct k_thread *thread)
+#if CONFIG_NUM_METAIRQ_PRIORITIES > 0
+#define IS_METAIRQ_EFFECTS __attribute_pure__
+#else
+#define IS_METAIRQ_EFFECTS __attribute_const__
+#endif
+
+static IS_METAIRQ_EFFECTS inline bool is_metairq(struct k_thread *thread)
 {
 #if CONFIG_NUM_METAIRQ_PRIORITIES > 0
 	return (thread->base.prio - K_HIGHEST_THREAD_PRIO)
@@ -123,7 +129,7 @@ int32_t z_sched_prio_cmp(struct k_thread *thread_1,
 	return 0;
 }
 
-static ALWAYS_INLINE bool should_preempt(struct k_thread *thread,
+static __attribute_pure__ ALWAYS_INLINE bool should_preempt(struct k_thread *thread,
 					 bool preempt_ok)
 {
 	/* Preemption is OK if it's being explicitly allowed by
@@ -252,6 +258,7 @@ static ALWAYS_INLINE struct k_thread *next_up(void)
 	struct k_thread *thread;
 
 	thread = _priq_run_best(&_kernel.ready_q.runq);
+	_cpu_t *current_cpu = _current_cpu;
 
 #if (CONFIG_NUM_METAIRQ_PRIORITIES > 0) && (CONFIG_NUM_COOP_PRIORITIES > 0)
 	/* MetaIRQs must always attempt to return back to a
@@ -259,13 +266,13 @@ static ALWAYS_INLINE struct k_thread *next_up(void)
 	 * to be highest priority now. The cooperative thread was
 	 * promised it wouldn't be preempted (by non-metairq threads)!
 	 */
-	struct k_thread *mirqp = _current_cpu->metairq_preempted;
+	struct k_thread *mirqp = current_cpu->metairq_preempted;
 
 	if (mirqp != NULL && (thread == NULL || !is_metairq(thread))) {
 		if (!z_is_thread_prevented_from_running(mirqp)) {
 			thread = mirqp;
 		} else {
-			_current_cpu->metairq_preempted = NULL;
+			current_cpu->metairq_preempted = NULL;
 		}
 	}
 #endif
@@ -277,7 +284,7 @@ static ALWAYS_INLINE struct k_thread *next_up(void)
 	 * responsible for putting it back in z_swap and ISR return!),
 	 * which makes this choice simple.
 	 */
-	return (thread != NULL) ? thread : _current_cpu->idle_thread;
+	return (thread != NULL) ? thread : current_cpu->idle_thread;
 #else
 	/* Under SMP, the "cache" mechanism for selecting the next
 	 * thread doesn't work, so we have more work to do to test
@@ -298,18 +305,18 @@ static ALWAYS_INLINE struct k_thread *next_up(void)
 	bool active = !z_is_thread_prevented_from_running(_current);
 
 	if (thread == NULL) {
-		thread = _current_cpu->idle_thread;
+		thread = current_cpu->idle_thread;
 	}
 
 	if (active) {
 		int32_t cmp = z_sched_prio_cmp(_current, thread);
 
 		/* Ties only switch if state says we yielded */
-		if ((cmp > 0) || ((cmp == 0) && !_current_cpu->swap_ok)) {
+		if ((cmp > 0) || ((cmp == 0) && !current_cpu->swap_ok)) {
 			thread = _current;
 		}
 
-		if (!should_preempt(thread, _current_cpu->swap_ok)) {
+		if (!should_preempt(thread, current_cpu->swap_ok)) {
 			thread = _current;
 		}
 	}
@@ -325,7 +332,7 @@ static ALWAYS_INLINE struct k_thread *next_up(void)
 		dequeue_thread(&_kernel.ready_q.runq, thread);
 	}
 
-	_current_cpu->swap_ok = false;
+	current_cpu->swap_ok = false;
 	return thread;
 #endif
 }
@@ -381,7 +388,7 @@ void k_sched_time_slice_set(uint32_t slice, int prio)
 	}
 }
 
-static inline bool sliceable(struct k_thread *thread)
+static __attribute_pure__ inline bool sliceable(struct k_thread *thread)
 {
 	return is_preempt(thread)
 		&& !z_is_thread_prevented_from_running(thread)
@@ -400,6 +407,7 @@ void z_time_slice(int ticks)
 	 * normally run with IRQs enabled.
 	 */
 	k_spinlock_key_t key = k_spin_lock(&sched_spinlock);
+	_cpu_t *current_cpu = _current_cpu;
 
 #ifdef CONFIG_SWAP_NONATOMIC
 	if (pending_current == _current) {
@@ -411,14 +419,14 @@ void z_time_slice(int ticks)
 #endif
 
 	if ((slice_time != 0) && sliceable(_current)) {
-		if (ticks >= _current_cpu->slice_ticks) {
+		if (ticks >= current_cpu->slice_ticks) {
 			move_thread_to_end_of_prio_q(_current);
 			z_reset_time_slice();
 		} else {
-			_current_cpu->slice_ticks -= ticks;
+			current_cpu->slice_ticks -= ticks;
 		}
 	} else {
-		_current_cpu->slice_ticks = 0;
+		current_cpu->slice_ticks = 0;
 	}
 	k_spin_unlock(&sched_spinlock, key);
 }
@@ -816,6 +824,12 @@ static inline bool resched(uint32_t key)
  * Check if the next ready thread is the same as the current thread
  * and save the trip if true.
  */
+
+#ifdef CONFIG_SMP
+__attribute_const__
+#else
+__attribute_pure__
+#endif
 static inline bool need_swap(void)
 {
 	/* the SMP case will be handled in C based z_swap() */

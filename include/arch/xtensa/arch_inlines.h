@@ -22,7 +22,7 @@
 		__asm__ volatile ("wsr." sr " %0" : : "r"(v)); \
 	} while (false)
 
-static ALWAYS_INLINE _cpu_t *arch_curr_cpu(void)
+static __attribute_pure__ ALWAYS_INLINE _cpu_t *arch_curr_cpu(void)
 {
 	_cpu_t *cpu;
 

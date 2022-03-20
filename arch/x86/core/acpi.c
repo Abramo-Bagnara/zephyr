@@ -11,7 +11,7 @@ static bool is_rsdp_searched;
 static struct acpi_dmar *dmar;
 static bool is_dmar_searched;
 
-static bool check_sum(struct acpi_sdt *t)
+static __attribute_pure__ bool check_sum(struct acpi_sdt *t)
 {
 	uint8_t sum = 0U, *p = (uint8_t *)t;
 

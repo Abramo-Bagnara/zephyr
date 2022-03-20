@@ -16,7 +16,7 @@
 #endif
 
 #ifndef _ASMLANGUAGE
-static inline bool arch_is_in_isr(void)
+static __attribute_pure__ inline bool arch_is_in_isr(void)
 {
 #ifdef CONFIG_SMP
 	/* On SMP, there is a race vs. the current CPU changing if we

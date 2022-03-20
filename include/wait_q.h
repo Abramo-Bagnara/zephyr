@@ -49,7 +49,7 @@ static inline void z_waitq_init(_wait_q_t *w)
 	sys_dlist_init(&w->waitq);
 }
 
-static inline struct k_thread *z_waitq_head(_wait_q_t *w)
+static __attribute_pure__ inline struct k_thread *z_waitq_head(_wait_q_t *w)
 {
 	return (struct k_thread *)sys_dlist_peek_head(&w->waitq);
 }

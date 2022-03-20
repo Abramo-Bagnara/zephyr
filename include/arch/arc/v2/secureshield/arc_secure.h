@@ -185,7 +185,7 @@ static inline uint32_t _arc_s_call_invoke0(uint32_t call_id)
 	return ret;
 }
 
-static inline bool _arch_is_user_context(void)
+static __attribute_pure__ inline bool _arch_is_user_context(void)
 {
 	uint32_t status;
 

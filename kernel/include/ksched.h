@@ -75,11 +75,16 @@ static inline void z_reschedule_unlocked(void)
 	(void) z_reschedule_irqlock(arch_irq_lock());
 }
 
-static inline bool z_is_idle_thread_entry(void *entry_point)
+static __attribute_const__ inline bool z_is_idle_thread_entry(void *entry_point)
 {
 	return entry_point == idle;
 }
 
+#ifdef CONFIG_MULTITHREADING
+__attribute_pure__
+#else
+__attribute_const__
+#endif
 static inline bool z_is_idle_thread_object(struct k_thread *thread)
 {
 #ifdef CONFIG_MULTITHREADING
@@ -103,7 +108,7 @@ static inline bool z_is_thread_pending(struct k_thread *thread)
 	return (thread->base.thread_state & _THREAD_PENDING) != 0U;
 }
 
-static inline bool z_is_thread_prevented_from_running(struct k_thread *thread)
+static __attribute_pure__ inline bool z_is_thread_prevented_from_running(struct k_thread *thread)
 {
 	uint8_t state = thread->base.thread_state;
 
@@ -112,12 +117,12 @@ static inline bool z_is_thread_prevented_from_running(struct k_thread *thread)
 
 }
 
-static inline bool z_is_thread_timeout_active(struct k_thread *thread)
+static __attribute_pure__ inline bool z_is_thread_timeout_active(struct k_thread *thread)
 {
 	return !z_is_inactive_timeout(&thread->base.timeout);
 }
 
-static inline bool z_is_thread_ready(struct k_thread *thread)
+static __attribute_pure__ inline bool z_is_thread_ready(struct k_thread *thread)
 {
 	return !(z_is_thread_prevented_from_running(thread) ||
 		 z_is_thread_timeout_active(thread));
@@ -128,12 +133,14 @@ static inline bool z_has_thread_started(struct k_thread *thread)
 	return (thread->base.thread_state & _THREAD_PRESTART) == 0U;
 }
 
-static inline bool z_is_thread_state_set(struct k_thread *thread, uint32_t state)
+static __attribute_pure__
+inline bool z_is_thread_state_set(struct k_thread *thread, uint32_t state)
 {
 	return (thread->base.thread_state & state) != 0U;
 }
 
-static inline bool z_is_thread_queued(struct k_thread *thread)
+static __attribute_pure__
+inline bool z_is_thread_queued(struct k_thread *thread)
 {
 	return z_is_thread_state_set(thread, _THREAD_QUEUED);
 }
@@ -203,12 +210,12 @@ static inline bool z_is_prio1_lower_than_or_equal_to_prio2(int prio1, int prio2)
 	return prio1 >= prio2;
 }
 
-static inline bool z_is_prio1_higher_than_prio2(int prio1, int prio2)
+static __attribute_const__ inline bool z_is_prio1_higher_than_prio2(int prio1, int prio2)
 {
 	return prio1 < prio2;
 }
 
-static inline bool z_is_prio_higher(int prio, int test_prio)
+static __attribute_const__ inline bool z_is_prio_higher(int prio, int test_prio)
 {
 	return z_is_prio1_higher_than_prio2(prio, test_prio);
 }

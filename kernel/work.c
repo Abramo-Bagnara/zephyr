@@ -373,8 +373,10 @@ int k_work_submit_to_queue(struct k_work_q *queue,
 	 * point because the lock was held.  If this is being invoked by a
 	 * preemptible thread then yield.
 	 */
-	if ((ret > 0) && (k_is_preempt_thread() != 0)) {
-		k_yield();
+	if (ret > 0) {
+		if (k_is_preempt_thread() != 0) {
+			k_yield();
+		}
 	}
 
 	SYS_PORT_TRACING_OBJ_FUNC_EXIT(k_work, submit_to_queue, queue, work, ret);

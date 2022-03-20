@@ -226,7 +226,7 @@ static inline void sys_dnode_init(sys_dnode_t *node)
  * @return true if node is linked into a list, false if it is not
  */
 
-static inline bool sys_dnode_is_linked(const sys_dnode_t *node)
+static __attribute_pure__ inline bool sys_dnode_is_linked(const sys_dnode_t *node)
 {
 	return node->next != NULL;
 }
@@ -267,7 +267,7 @@ static inline bool sys_dlist_is_tail(sys_dlist_t *list, sys_dnode_t *node)
  * @return true if empty, false otherwise
  */
 
-static inline bool sys_dlist_is_empty(sys_dlist_t *list)
+static __attribute_pure__ inline bool sys_dlist_is_empty(sys_dlist_t *list)
 {
 	return list->head == list;
 }
@@ -295,7 +295,7 @@ static inline bool sys_dlist_has_multiple_nodes(sys_dlist_t *list)
  * @return a pointer to the head element, NULL if list is empty
  */
 
-static inline sys_dnode_t *sys_dlist_peek_head(sys_dlist_t *list)
+static __attribute_pure__ inline sys_dnode_t *sys_dlist_peek_head(sys_dlist_t *list)
 {
 	return sys_dlist_is_empty(list) ? NULL : list->head;
 }
@@ -326,7 +326,7 @@ static inline sys_dnode_t *sys_dlist_peek_head_not_empty(sys_dlist_t *list)
  * @return a pointer to the next element from a node, NULL if node is the tail
  */
 
-static inline sys_dnode_t *sys_dlist_peek_next_no_check(sys_dlist_t *list,
+static __attribute_pure__ inline sys_dnode_t *sys_dlist_peek_next_no_check(sys_dlist_t *list,
 							sys_dnode_t *node)
 {
 	return (node == list->tail) ? NULL : node->next;
@@ -342,7 +342,7 @@ static inline sys_dnode_t *sys_dlist_peek_next_no_check(sys_dlist_t *list,
  * or NULL (when node comes from reading the head of an empty list).
  */
 
-static inline sys_dnode_t *sys_dlist_peek_next(sys_dlist_t *list,
+static __attribute_pure__ inline sys_dnode_t *sys_dlist_peek_next(sys_dlist_t *list,
 					       sys_dnode_t *node)
 {
 	return (node != NULL) ? sys_dlist_peek_next_no_check(list, node) : NULL;
@@ -478,20 +478,18 @@ static inline void sys_dlist_insert(sys_dnode_t *successor, sys_dnode_t *node)
 static inline void sys_dlist_insert_at(sys_dlist_t *list, sys_dnode_t *node,
 	int (*cond)(sys_dnode_t *node, void *data), void *data)
 {
-	if (sys_dlist_is_empty(list)) {
-		sys_dlist_append(list, node);
-	} else {
+	if (!sys_dlist_is_empty(list)) {
 		sys_dnode_t *pos = sys_dlist_peek_head(list);
 
-		while ((pos != NULL) && (cond(pos, data) == 0)) {
+		while (pos != NULL) {
+			if (cond(pos, data) != 0) {
+				sys_dlist_insert(pos, node);
+				return;
+			}
 			pos = sys_dlist_peek_next(list, pos);
 		}
-		if (pos != NULL) {
-			sys_dlist_insert(pos, node);
-		} else {
-			sys_dlist_append(list, node);
-		}
 	}
+	sys_dlist_append(list, node);
 }
 
 /**

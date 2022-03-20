@@ -56,8 +56,7 @@ static ALWAYS_INLINE void arch_nop(void)
 	__asm__ volatile("nop");
 }
 
-static ALWAYS_INLINE bool arch_irq_unlocked(unsigned int key)
-{
+static __attribute_const__ ALWAYS_INLINE bool arch_irq_unlocked(unsigned int key)
 	return key == false;
 }
 

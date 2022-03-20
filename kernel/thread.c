@@ -104,7 +104,7 @@ void k_thread_foreach_unlocked(k_thread_user_cb_t user_cb, void *user_data)
 #endif
 }
 
-bool k_is_in_isr(void)
+bool __attribute_pure__ k_is_in_isr(void)
 {
 	return arch_is_in_isr();
 }

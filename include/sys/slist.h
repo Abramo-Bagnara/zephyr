@@ -228,7 +228,7 @@ static inline void z_slist_tail_set(sys_slist_t *list, sys_snode_t *node)
  *
  * @return A pointer on the first node of the list (or NULL if none)
  */
-static inline sys_snode_t *sys_slist_peek_head(sys_slist_t *list)
+static inline __attribute_pure__ sys_snode_t *sys_slist_peek_head(sys_slist_t *list)
 {
 	return list->head;
 }
@@ -240,7 +240,7 @@ static inline sys_snode_t *sys_slist_peek_head(sys_slist_t *list)
  *
  * @return A pointer on the last node of the list (or NULL if none)
  */
-static inline sys_snode_t *sys_slist_peek_tail(sys_slist_t *list)
+static inline __attribute_pure__ sys_snode_t *sys_slist_peek_tail(sys_slist_t *list)
 {
 	return list->tail;
 }

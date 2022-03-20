@@ -903,7 +903,7 @@ extern void k_sched_time_slice_set(uint32_t slice, int prio);
  * @return false if invoked by a thread.
  * @return true if invoked by an ISR.
  */
-extern bool k_is_in_isr(void);
+extern __attribute_pure__ bool k_is_in_isr(void);
 
 /**
  * @brief Determine if code is running in a preemptible thread.

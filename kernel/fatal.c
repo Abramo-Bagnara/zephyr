@@ -57,7 +57,7 @@ static const char *thread_name_get(struct k_thread *thread)
 	return thread_name;
 }
 
-static const char *reason_to_str(unsigned int reason)
+static __attribute_const__ const char *reason_to_str(unsigned int reason)
 {
 	switch (reason) {
 	case (unsigned int)K_ERR_CPU_EXCEPTION:

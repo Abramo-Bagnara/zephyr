@@ -33,7 +33,7 @@ FUNC_NORETURN void arch_system_halt(unsigned int reason)
 }
 #endif
 
-static inline uintptr_t esf_get_sp(const z_arch_esf_t *esf)
+static __attribute_pure__ inline uintptr_t esf_get_sp(const z_arch_esf_t *esf)
 {
 #ifdef CONFIG_X86_64
 	return esf->rsp;
@@ -56,8 +56,9 @@ __pinned_func
 bool z_x86_check_stack_bounds(uintptr_t addr, size_t size, uint16_t cs)
 {
 	uintptr_t start, end;
+	struct k_thread *current = _current;
 
-	if ((_current == NULL) || arch_is_in_isr()) {
+	if ((current == NULL) || arch_is_in_isr()) {
 		/* We were servicing an interrupt or in early boot environment
 		 * and are supposed to be on the interrupt stack */
 		uint8_t cpu_id;
@@ -72,7 +73,7 @@ bool z_x86_check_stack_bounds(uintptr_t addr, size_t size, uint16_t cs)
 		end = start + CONFIG_ISR_STACK_SIZE;
 #ifdef CONFIG_USERSPACE
 	} else if (((cs & 0x3U) == 0U) &&
-		   ((_current->base.user_options & K_USER) != 0)) {
+		   ((current->base.user_options & K_USER) != 0)) {
 		/* The low two bits of the CS register is the privilege
 		 * level. It will be 0 in supervisor mode and 3 in user mode
 		 * corresponding to ring 0 / ring 3.
@@ -80,14 +81,14 @@ bool z_x86_check_stack_bounds(uintptr_t addr, size_t size, uint16_t cs)
 		 * If we get here, we must have been doing a syscall, check
 		 * privilege elevation stack bounds
 		 */
-		start = _current->stack_info.start - CONFIG_MMU_PAGE_SIZE;
-		end = _current->stack_info.start;
+		start = current->stack_info.start - CONFIG_MMU_PAGE_SIZE;
+		end = current->stack_info.start;
 #endif /* CONFIG_USERSPACE */
 	} else {
 		/* Normal thread operation, check its stack buffer */
-		start = _current->stack_info.start;
-		end = Z_STACK_PTR_ALIGN(_current->stack_info.start +
-					_current->stack_info.size);
+		start = current->stack_info.start;
+		end = Z_STACK_PTR_ALIGN(current->stack_info.start +
+					current->stack_info.size);
 	}
 
 	return (addr <= start) || ((addr + size) > end);
@@ -152,7 +153,7 @@ static void unwind_stack(uintptr_t base_ptr, uint16_t cs)
 }
 #endif /* CONFIG_X86_EXCEPTION_STACK_TRACE */
 
-static inline uintptr_t get_cr3(const z_arch_esf_t *esf)
+static __attribute_pure__ inline uintptr_t get_cr3(const z_arch_esf_t *esf)
 {
 #if defined(CONFIG_USERSPACE) && defined(CONFIG_X86_KPTI)
 	/* If the interrupted thread was in user mode, we did a page table

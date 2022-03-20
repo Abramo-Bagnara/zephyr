@@ -121,7 +121,7 @@ struct k_mem_paging_histogram_t {
 };
 
 /* Just like Z_MEM_PHYS_ADDR() but with type safety and assertions */
-static inline uintptr_t z_mem_phys_addr(void *virt)
+static __attribute_const__ inline uintptr_t z_mem_phys_addr(void *virt)
 {
 	uintptr_t addr = (uintptr_t)virt;
 

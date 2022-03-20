@@ -43,8 +43,8 @@ int nanosleep(const struct timespec *rqtp, struct timespec *rmtp)
 		/* If a user passes this in, we could be here a while, but
 		 * at least it's technically correct-ish
 		 */
-		ns = (uint64_t)rqtp->tv_nsec + NSEC_PER_SEC
-			+ ((uint64_t)k_sleep(K_SECONDS(((uint64_t)rqtp->tv_sec - 1)))
+		ns = (uint64_t)rqtp->tv_nsec + NSEC_PER_SEC;
+		ns += ((uint64_t)k_sleep(K_SECONDS(((uint64_t)rqtp->tv_sec - 1)))
 				* NSEC_PER_MSEC);
 	} else {
 		ns = ((uint64_t)rqtp->tv_sec * NSEC_PER_SEC) + (uint64_t)rqtp->tv_nsec;

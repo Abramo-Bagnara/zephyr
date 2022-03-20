@@ -179,7 +179,7 @@ static inline uintptr_t arch_syscall_invoke0(uintptr_t call_id)
 	return ret;
 }
 
-static inline bool arch_is_user_context(void)
+static __attribute_pure__ inline bool arch_is_user_context(void)
 {
 	uint32_t status;
 

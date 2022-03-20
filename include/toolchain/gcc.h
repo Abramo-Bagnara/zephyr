@@ -197,6 +197,9 @@ do {                                                                    \
 #ifndef __attribute_const__
 #define __attribute_const__ __attribute__((__const__))
 #endif
+#ifndef __attribute_pure__
+#define __attribute_pure__ __attribute__((__pure__))
+#endif
 #ifndef __must_check
 #define __must_check __attribute__((warn_unused_result))
 #endif

@@ -42,7 +42,7 @@ static ALWAYS_INLINE void arch_irq_unlock(unsigned int key)
 	write_daif(key);
 }
 
-static ALWAYS_INLINE bool arch_irq_unlocked(unsigned int key)
+static ALWAYS_INLINE __attribute_const__ bool arch_irq_unlocked(unsigned int key)
 {
 	/* We only check the (I)RQ bit on the DAIF register */
 	return (key & DAIF_IRQ_BIT) == 0;

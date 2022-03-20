@@ -13,7 +13,7 @@
 #include <arch/arm64/lib_helpers.h>
 #include <arch/arm64/tpidrro_el0.h>
 
-static ALWAYS_INLINE _cpu_t *arch_curr_cpu(void)
+static __attribute_pure__ ALWAYS_INLINE _cpu_t *arch_curr_cpu(void)
 {
 	return (_cpu_t *)(read_tpidrro_el0() & TPIDRROEL0_CURR_CPU);
 }

@@ -329,7 +329,7 @@ extern int z_user_string_copy(char *dst, const char *src, size_t maxlen);
  */
 #define Z_SYSCALL_VERIFY(expr) Z_SYSCALL_VERIFY_MSG(expr, #expr)
 
-static __unused const char *read_write_msg(bool write)
+static __attribute_const__ __unused const char *read_write_msg(bool write)
 {
 	return write ? "write" : "read";
 }
@@ -395,7 +395,7 @@ static __unused const char *read_write_msg(bool write)
 							(size_t)(size), \
 							&product), \
 				     "%zux%zu array is too large", \
-				     (size_t)(nmemb), (size_t)(size)) ||  \
+				     (size_t)(nmemb), (size_t)(size)) ? true : \
 			Z_SYSCALL_MEMORY(ptr, product, write); \
 	})
 

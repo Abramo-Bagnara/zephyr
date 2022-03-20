@@ -255,7 +255,7 @@ static inline uint32_t arch_k_cycle_get_32(void)
 	return sys_clock_cycle_get_32();
 }
 
-static ALWAYS_INLINE bool arch_irq_unlocked(unsigned int key)
+static __attribute_const__ ALWAYS_INLINE bool arch_irq_unlocked(unsigned int key)
 {
 	return (key & 0x200) != 0;
 }

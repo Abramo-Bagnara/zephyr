@@ -55,21 +55,21 @@
 	     (__cns) = Z_GENLIST_PEEK_NEXT_CONTAINER(__lname, __cn, __n))
 
 #define Z_GENLIST_IS_EMPTY(__lname)					\
-	static inline bool						\
+	static __attribute_pure__ inline bool						\
 	sys_ ## __lname ## _is_empty(sys_ ## __lname ## _t *list)	\
 	{								\
 		return (sys_ ## __lname ## _peek_head(list) == NULL);	\
 	}
 
 #define Z_GENLIST_PEEK_NEXT_NO_CHECK(__lname, __nname)			    \
-	static inline sys_ ## __nname ## _t *				    \
+	static __attribute_pure__ inline sys_ ## __nname ## _t *				    \
 	sys_ ## __lname ## _peek_next_no_check(sys_ ## __nname ## _t *node) \
 	{								    \
 		return z_ ## __nname ## _next_peek(node);		    \
 	}
 
 #define Z_GENLIST_PEEK_NEXT(__lname, __nname)				     \
-	static inline sys_ ## __nname ## _t *				     \
+	static __attribute_pure__ inline sys_ ## __nname ## _t *				     \
 	sys_ ## __lname ## _peek_next(sys_ ## __nname ## _t *node)	     \
 	{								     \
 		return (node != NULL) ?                                        \

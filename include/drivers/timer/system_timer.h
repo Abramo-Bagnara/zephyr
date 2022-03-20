@@ -128,7 +128,7 @@ extern void sys_clock_announce(int32_t ticks);
  * this with appropriate locking, the driver needs only provide an
  * instantaneous answer.
  */
-extern uint32_t sys_clock_elapsed(void);
+extern __attribute_pure__ uint32_t sys_clock_elapsed(void);
 /**
  * @}
  */

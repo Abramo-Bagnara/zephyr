@@ -253,7 +253,7 @@ static inline void arch_irq_unlock(unsigned int key);
  * @return true if interrupts were unlocked prior to the arch_irq_lock()
  * call that produced the key argument.
  */
-static inline bool arch_irq_unlocked(unsigned int key);
+static __attribute_const__ inline bool arch_irq_unlocked(unsigned int key);
 
 /**
  * Disable the specified interrupt line
@@ -381,7 +381,7 @@ void arch_irq_offload(irq_offload_routine_t routine, const void *parameter);
  */
 #ifdef CONFIG_SMP
 /** Return the CPU struct for the currently executing CPU */
-static inline struct _cpu *arch_curr_cpu(void);
+static __attribute_pure__ inline struct _cpu *arch_curr_cpu(void);
 
 /**
  * Broadcast an interrupt to all CPUs

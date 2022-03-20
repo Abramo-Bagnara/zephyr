@@ -37,7 +37,7 @@ static inline void arch_irq_unlock(unsigned int key)
 	ARG_UNUSED(key);
 }
 
-static inline bool arch_irq_unlocked(unsigned int key)
+static __attribute_const__ ALWAYS_INLINE bool arch_irq_unlocked(unsigned int key)
 {
 	return 0;
 }

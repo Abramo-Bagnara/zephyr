@@ -284,7 +284,7 @@ void z_log_minimal_printk(const char *fmt, ...);
 	z_log_minimal_printk("\n"); \
 } while (false)
 
-static inline char z_log_minimal_level_to_char(unsigned int level)
+static __attribute_const__ inline char z_log_minimal_level_to_char(unsigned int level)
 {
 	switch (level) {
 	case LOG_LEVEL_ERR:

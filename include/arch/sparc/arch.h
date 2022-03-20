@@ -83,7 +83,7 @@ static ALWAYS_INLINE void arch_irq_unlock(unsigned int key)
 	z_sparc_set_pil_inline(key);
 }
 
-static ALWAYS_INLINE bool arch_irq_unlocked(unsigned int key)
+static __attribute_const__ ALWAYS_INLINE bool arch_irq_unlocked(unsigned int key)
 {
 	return key == 0;
 }

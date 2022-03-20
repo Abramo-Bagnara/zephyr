@@ -178,7 +178,7 @@ static ALWAYS_INLINE void arch_irq_unlock(unsigned int key)
 	__asm__ volatile("seti %0" : : "ir"(key) : "memory");
 }
 
-static ALWAYS_INLINE bool arch_irq_unlocked(unsigned int key)
+static __attribute_const__ ALWAYS_INLINE bool arch_irq_unlocked(unsigned int key)
 {
 	/* ARC irq lock uses instruction "clri r0",
 	 * r0 ==  {26’d0, 1’b1, STATUS32.IE, STATUS32.E[3:0] }

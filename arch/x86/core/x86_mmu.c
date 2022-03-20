@@ -303,7 +303,7 @@ static inline pentry_t get_entry(pentry_t *ptables, void *virt, unsigned int lev
 
 /* Get the physical memory address associated with this table entry */
 __pinned_func
-static inline uintptr_t get_entry_phys(pentry_t entry, unsigned int level)
+static __attribute_pure__ inline uintptr_t get_entry_phys(pentry_t entry, unsigned int level)
 {
 	return entry & paging_levels[level].mask;
 }
@@ -317,7 +317,7 @@ static inline pentry_t *next_table(pentry_t entry, unsigned int level)
 
 /* Number of table entries at this level */
 __pinned_func
-static inline size_t get_num_entries(unsigned int level)
+static __attribute_pure__ inline size_t get_num_entries(unsigned int level)
 {
 	return paging_levels[level].entries;
 }
@@ -333,7 +333,7 @@ static inline size_t table_size(unsigned int level)
  * that an entry within the table covers
  */
 __pinned_func
-static inline size_t get_entry_scope(unsigned int level)
+static __attribute_pure__ inline size_t get_entry_scope(unsigned int level)
 {
 	return (1UL << paging_levels[level].shift);
 }
@@ -351,7 +351,7 @@ static inline size_t get_table_scope(unsigned int level)
  * stored in any other bits
  */
 __pinned_func
-static inline bool is_leaf(unsigned int level, pentry_t entry)
+static __attribute_const__ inline bool is_leaf(unsigned int level, pentry_t entry)
 {
 	if (level == PTE_LEVEL) {
 		/* Always true for PTE */

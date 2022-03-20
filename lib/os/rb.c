@@ -18,7 +18,7 @@
 
 enum rb_color { RED = 0U, BLACK = 1U };
 
-static struct rbnode *get_child(struct rbnode *n, uint8_t side)
+static __attribute_pure__ struct rbnode *get_child(struct rbnode *n, uint8_t side)
 {
 	CHECK(n);
 	if (side != 0U) {
@@ -44,18 +44,18 @@ static void set_child(struct rbnode *n, uint8_t side, void *val)
 	}
 }
 
-static enum rb_color get_color(struct rbnode *n)
+static __attribute_pure__ enum rb_color get_color(struct rbnode *n)
 {
 	CHECK(n);
 	return ((((uintptr_t)n->children[0]) & 1U) == 0U) ? RED : BLACK;
 }
 
-static bool is_black(struct rbnode *n)
+static __attribute_pure__ bool is_black(struct rbnode *n)
 {
 	return get_color(n) == BLACK;
 }
 
-static bool is_red(struct rbnode *n)
+static __attribute_pure__ bool is_red(struct rbnode *n)
 {
 	return get_color(n) == RED;
 }
@@ -595,7 +595,8 @@ struct rbnode *z_rb_foreach_next(struct rbtree *tree, struct _rb_foreach *f)
 	 * even if node has no parent).
 	 */
 	if (f->is_left[f->top] != 0U) {
-		return f->stack[--f->top];
+		--f->top;
+		return f->stack[f->top];
 	}
 
 	/* If we had no left tree and are a right child then our

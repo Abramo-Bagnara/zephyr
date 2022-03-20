@@ -251,7 +251,9 @@ static size_t rand_alloc_size(struct z_heap_stress_rec *sr)
 /* Returns the index of a randomly chosen block to free */
 static size_t rand_free_choice(struct z_heap_stress_rec *sr)
 {
-	return rand32() % sr->blocks_alloced;
+	size_t index = rand32();
+
+	return index % sr->blocks_alloced;
 }
 
 /* General purpose heap stress test.  Takes function pointers to allow

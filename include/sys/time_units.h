@@ -39,12 +39,12 @@ static inline int z_impl_sys_clock_hw_cycles_per_sec_runtime_get(void)
 
 #if defined(__cplusplus) && (__cplusplus >= 201402L)
   #if defined(CONFIG_TIMER_READS_ITS_FREQUENCY_AT_RUNTIME)
-    #define TIME_CONSTEXPR
+    #define TIME_CONSTEXPR __attribute_pure__
   #else
     #define TIME_CONSTEXPR constexpr
   #endif
 #else
-  #define TIME_CONSTEXPR
+  #define TIME_CONSTEXPR __attribute_const__
 #endif
 
 static TIME_CONSTEXPR inline unsigned int sys_clock_hw_cycles_per_sec(void)
@@ -75,7 +75,7 @@ static TIME_CONSTEXPR inline unsigned int sys_clock_hw_cycles_per_sec(void)
  *    round_off - Return the nearest value to the resulting fraction
  *                (pass both round_up/off as false to get "round_down")
  */
-static TIME_CONSTEXPR ALWAYS_INLINE uint64_t z_tmcvt(uint64_t t, uint32_t from_hz,
+static __attribute_const__ TIME_CONSTEXPR ALWAYS_INLINE uint64_t z_tmcvt(uint64_t t, uint32_t from_hz,
 						  uint32_t to_hz, bool const_hz,
 						  bool result32, bool round_up,
 						  bool round_off)
